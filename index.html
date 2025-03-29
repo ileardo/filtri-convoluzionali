@@ -1,0 +1,67 @@
+<!-- Traduzione italiana della pagina "Image Kernels" di setosa.io, a fini educativi -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=1100">
+  <meta charset="utf-8">
+  <title>Filtri Convoluzionali - Spiegazione Visiva</title>
+  <link rel="stylesheet" href="/ev/image-kernels//style.css" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=Lato:100,200,300,400" rel="stylesheet" type="text/css">
+  <script src="/ev/scripts/d3.js" charset="utf-8"></script>
+  <script src="/ev/scripts/angular.js" charset="utf-8"></script>
+  <script src="/ev/scripts/common.js" charset="utf-8"></script>
+</head>
+
+<body ng-app="myApp" ng-controller="MainCtrl">
+
+  <section class="menu"><a href="/ev/">Back</a></section>
+
+  <section class="title">
+    <div class="title-region">
+      <h1 class="title">Filtri Convoluzionali</h1>
+      <h3 class="by-line">Spiegazione Visiva</h3>
+    </div>
+  </section>
+
+  <section>
+    <p>Di <a href="https://twitter.com/vicapow">Victor Powell</a></p>
+
+    <p>Un filtro convoluzionale è una piccola matrice utilizzata per applicare effetti come sfocatura, nitidezza, contorno o rilievo, simili a quelli che si trovano in Photoshop o Gimp. Sono anche usati nel machine learning per l'estrazione di caratteristiche (feature extraction), una tecnica per individuare le parti più rilevanti di un'immagine. In questo contesto, il processo viene chiamato più generalmente "convoluzione" (vedi: <a href="https://en.wikipedia.org/wiki/Convolutional_neural_network">reti neurali convoluzionali</a>.)</p>
+
+    <p>Per capire come funzionano, iniziamo esaminando un'immagine in bianco e nero. La matrice a sinistra contiene numeri da 0 a 255 che corrispondono alla luminosità dei singoli pixel in un'immagine di un volto. L'immagine ingrandita è stata sgranata per renderla più visibile; l'ultima è la dimensione reale.</p>
+
+    <p>Applichiamo il seguente filtro 3x3 <b class="ng-binding">sharpen</b> all'immagine del volto.</p>
+
+    <p>Qui sotto, per ogni blocco 3x3 di pixel dell'immagine a sinistra, moltiplichiamo ciascun pixel per l'elemento corrispondente del filtro, quindi sommiamo il risultato. Questa somma diventa un nuovo pixel nell'immagine a destra. Passa il cursore su un pixel per vedere come viene calcolato.</p>
+
+    <p>Una particolarità di questo processo è la gestione dei bordi. Ad esempio, l'angolo in alto a sinistra dell'immagine ha solo tre pixel adiacenti. Un modo per gestire il problema è estendere i valori dei bordi; in questa demo, invece, quei valori sono stati ignorati, colorandoli di nero.</p>
+
+    <p>Qui puoi sperimentare diversi filtri e vedere come influenzano l'immagine originale, oppure costruire un filtro personalizzato. Puoi anche caricare una tua immagine o usare la videocamera se supportata dal browser.</p>
+
+    <p>Per ulteriori spiegazioni, visita il progetto Explained Visually <a href="/ev/">homepage</a>.</p>
+
+    <p>Oppure iscriviti alla nostra newsletter.</p>
+
+    <p><strong>Note sui filtri:</strong></p>
+    <ul>
+      <li><strong>sharpen</strong>: Il filtro sharpen enfatizza le differenze tra pixel adiacenti, rendendo l'immagine più nitida.</li>
+      <li><strong>blur</strong>: Il filtro blur riduce le differenze tra pixel adiacenti, creando un effetto sfocato.</li>
+      <li><strong>emboss</strong>: Il filtro emboss crea l'illusione della profondità enfatizzando le differenze tra pixel lungo una diagonale.</li>
+      <li><strong>identity</strong>: Il filtro identity non modifica l'immagine. Che noia!</li>
+      <li><strong>custom</strong>: Il filtro custom è quello che costruisci tu.</li>
+      <li><strong>sobel</strong>: I filtri sobel evidenziano solo le differenze nei valori dei pixel adiacenti in una direzione specifica.</li>
+      <li><strong>outline</strong>: Il filtro outline evidenzia i forti contrasti nei pixel: se i vicini sono simili, il pixel appare nero; se sono molto diversi, appare bianco.</li>
+    </ul>
+
+    <p>Per ulteriori dettagli, consulta la <a href="http://docs.gimp.org/en/plug-in-convmatrix.html">documentazione di Gimp</a>.</p>
+  </section>
+
+  <footer style="margin-top: 2em; font-size: 0.9em; text-align: center; color: gray;">
+    <p>Questa è una traduzione italiana a scopo educativo della pagina originale <a href="https://setosa.io/ev/image-kernels/" target="_blank">Image Kernels</a> creata da Victor Powell e Lewis Lehe su <a href="https://setosa.io">setosa.io</a>.</p>
+    <p>Questa versione è fornita solo per fini didattici e non ha alcuno scopo commerciale.</p>
+  </footer>
+
+  <script src="/ev/scripts/exif.js" charset="utf-8"></script>
+  <script src="/ev/image-kernels/script.js"></script>
+</body>
+</html>
