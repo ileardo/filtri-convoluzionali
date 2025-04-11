@@ -38,7 +38,8 @@
 </div>
 </section>
 <section>
-<p>Qui puoi sperimentare con diverse matrici di kernel e vedere come influenzano l'immagine originale, oppure costruire il tuo kernel personalizzato. You can also upload your own image or use live video if your browser supports it.</p>
+<p>Qui puoi sperimentare con diverse matrici di kernel e vedere come influenzano l'immagine originale, oppure costruire il tuo kernel personalizzato. 
+  È anche possibile caricare una propria immagine.</p>
 <div style="position:relative">
   <!-- Add default image with absolute positioning to match the uploaded image position -->
   <img id="placeholder-image" src="images/placeholder.jpg" alt="Immagine di esempio">
@@ -79,16 +80,22 @@
       ga('send', 'pageview');
     </script>
 <script>
-  // Hide placeholder when user selects their own image
+  // Update script to handle placeholder image correctly
   document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.querySelector('input[type="file"]'); // Adjust selector based on your HTML
+    const placeholder = document.getElementById('placeholder-image');
+    const fileInput = document.querySelector('input[type="file"]');
+    
     if (fileInput) {
       fileInput.addEventListener('change', function() {
-        const placeholder = document.getElementById('placeholder-image');
         if (placeholder && this.files.length > 0) {
           placeholder.style.display = 'none';
         }
       });
+    }
+    
+    // Make sure placeholder is visible by default
+    if (placeholder) {
+      placeholder.style.display = 'block';
     }
   });
 </script>

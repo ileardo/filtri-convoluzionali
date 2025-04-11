@@ -526,199 +526,125 @@ myApp.directive('kernelInspect', function() {
 
 myApp.directive('kernelPlayground', function() {
   function link(scope, el, attr) {
-    el = d3.select(el[0])
-    var w = 1000, h = 400, mode = 'image', didLoadImage = false, img
-    var vw, vh, vs, sw, sh, vx, vy
-    var data1 = [], data2 = [], didLoadVideo = false
-    var vidBtn, localMediaStream, imgBinary, src
-    var cw = 500, ch = 400
+    el = d3.select(el[0]);
+    var w = 1000, h = 400, mode = 'image', didLoadImage = false, img;
+    var vw, vh, vs, sw, sh, vx, vy;
+    var data1 = [], data2 = [];
+    var imgBinary, src;
+    var cw = 500, ch = 400;
 
     var iFile = el.append('input').attr({
       type: 'file',
       name: 'file',
       accept: 'image/x-png, image/gif, image/jpeg'
-    })
+    });
 
     iFile.node().addEventListener('change', function(e) {
-      var file = e.target.files[0]
-      if (!file) return
-      var reader = new FileReader()
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
       reader.onload = function(e) {
-        src = e.target.result /* data url */
-        reader = new FileReader()
+        src = e.target.result; /* data url */
+        reader = new FileReader();
         reader.onload = function(e) {
-          imgBinary = e.target.result
-          loadImage(src)
-        }
-        reader.readAsArrayBuffer(file)
-      }
-      reader.readAsDataURL(file)
-    }, false)
+          imgBinary = e.target.result;
+          loadImage(src);
+        };
+        reader.readAsArrayBuffer(file);
+      };
+      reader.readAsDataURL(file);
+    }, false);
 
     function loadImage(src) {
-      mode = 'image'
-      el.select('video').remove()
-      img = new Image()
-      didLoadImage = false
+      mode = 'image';
+      el.select('video').remove();
+      img = new Image();
+      didLoadImage = false;
       img.onload = function() {
-        vw = img.width, vh = img.height
-        sw = cw / vw, sh = ch / vh, vs = sw < sh ? sw : sh
-        vx = (ch - vs * vw) / 2, vy = (cw - vs * vh) / 2
-        didLoadImage = true
-        if (scope.kernel) drawImage()
-      }
-      img.src = src
+        vw = img.width, vh = img.height;
+        sw = cw / vw, sh = ch / vh, vs = sw < sh ? sw : sh;
+        vx = (ch - vs * vw) / 2, vy = (cw - vs * vh) / 2;
+        didLoadImage = true;
+        if (scope.kernel) drawImage();
+      };
+      img.src = src;
     }
 
-    loadImage('/ev/image-kernels/resources/library.jpg')
+    loadImage('/ev/image-kernels/resources/library.jpg');
 
-
-    navigator.getUserMedia = (navigator.getUserMedia
-      || navigator.webkitGetUserMedia
-      || navigator.mozGetUserMedia
-      || navigator.msGetUserMedia)
-    if (navigator.getUserMedia) {
-      vidBtn = el.append('button').text('Live video')
-        .on('click', loadVideo)
-    }
-
-    var canvas = el.append('canvas').attr({width: w, height: h})
-    var ctx = canvas.node().getContext('2d')
-
-
-    function loadVideo() {
-      if (mode === 'video') return
-
-      var video = el.append('video')
-        .attr('autoplay', 'autoplay')
-        .style('display', 'none')
-
-      navigator.getUserMedia({video: true}, function(stream) {
-        video.node().onloadeddata = function() {
-          // This `setInterval` is a hack to solve a bug with FireFox.
-          var inter = setInterval(function() {
-            if (!video.node().videoWidth) return
-            clearInterval(inter)
-            didLoadVideo = true
-            mode = 'video'
-            vw = video.node().videoWidth, vh = video.node().videoHeight
-            sw = cw / vw, sh = ch / vh, vs = sw < sh ? sw : sh
-            ctx.clearRect(0, 0, w, h)
-            startTimer()
-          }, 100)
-        }
-        video.node().src = window.URL.createObjectURL(stream)
-        localMediaStream = stream
-      }, function(err) {
-        alert('Unable to start video with your permission.')
-      })
-
-      function startTimer() {
-        d3.timer(function() {
-          if (mode === 'image') return true
-          if (!localMediaStream || !didLoadVideo) return false
-          var x_off = w - cw
-          ctx.save()
-          ctx.translate(x_off, 0)
-          ctx.scale(vs, vs)
-          ctx.drawImage(video.node(), 0, 0)
-          var dw = Math.round(vw * vs), dh = Math.round(vh * vs)
-          var idata = ctx.getImageData(x_off, 0, dw, dh)
-          dw = idata.width, dh = idata.height
-          var d1 = idata.data
-          ctx.clearRect(-1, 0, vw + 2, vh)
-          for(var i =  0; i < d1.length / 4; i++) data1[i] = d1[i * 4]
-          var k = scope.kernel.map(function(d) { return +d })
-          scope.kernelFunc(data1, dw, dh, k, data2)
-          var idata = ctx.createImageData(dw, dh)
-          for(var i = 0; i < idata.data.length; i+=4) {
-            idata.data[i + 0] = data2[i / 4]
-            idata.data[i + 1] = data2[i / 4]
-            idata.data[i + 2] = data2[i / 4]
-            idata.data[i + 3] = 255
-          }
-          ctx.putImageData(idata, x_off, 0)
-          ctx.restore()
-          return false
-        })
-      }
-    }
+    var canvas = el.append('canvas').attr({ width: w, height: h });
+    var ctx = canvas.node().getContext('2d');
 
     function drawImage() {
-      var x_off = w - cw
-      var iw = vw * vs, ih = vh * vs
-      ctx.clearRect(0, 0, w, h)
-      // ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
-      // ctx.fillRect(0, 0, w, h)
-      // ctx.fillRect(x_off, 0, cw, ch)
-      ctx.save()
-      var tl = [0, 0], br = [0, 0], bb = [0, 0]
+      var x_off = w - cw;
+      var iw = vw * vs, ih = vh * vs;
+      ctx.clearRect(0, 0, w, h);
+      ctx.save();
+      var tl = [0, 0], br = [0, 0], bb = [0, 0];
 
-      var orient = imgBinary && EXIF.readFromBinaryFile(imgBinary).Orientation
+      var orient = imgBinary && EXIF.readFromBinaryFile(imgBinary).Orientation;
       if (orient === 6) {
         // Rotate 90 degrees.
-        sw = cw / vh, sh = ch / vw, vs = sw < sh ? sw : sh
-        iw = vh * vs, ih = vw * vs
-        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2]
-        bb = [iw, ih]
-        ctx.translate(tl[0] + iw, tl[1])
-        ctx.rotate(90 * Math.PI / 180)
-        ctx.scale(vs, vs)
+        sw = cw / vh, sh = ch / vw, vs = sw < sh ? sw : sh;
+        iw = vh * vs, ih = vw * vs;
+        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2];
+        bb = [iw, ih];
+        ctx.translate(tl[0] + iw, tl[1]);
+        ctx.rotate(90 * Math.PI / 180);
+        ctx.scale(vs, vs);
       } else if (orient === 3) {
         // Rotate 180 degrees.
-        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2]
-        bb = [iw, ih]
-        ctx.translate(tl[0] + iw, tl[1] + ih)
-        ctx.scale(vs, vs)
-        ctx.rotate(180 * Math.PI / 180)
+        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2];
+        bb = [iw, ih];
+        ctx.translate(tl[0] + iw, tl[1] + ih);
+        ctx.scale(vs, vs);
+        ctx.rotate(180 * Math.PI / 180);
       } else if (orient === 8) {
         // Rotate -90 degrees.
-        sw = cw / vh, sh = ch / vw, vs = sw < sh ? sw : sh
-        iw = vh * vs, ih = vw * vs
-        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2]
-        bb = [iw, ih]
-        ctx.translate(tl[0], tl[1] + ih)
-        ctx.rotate(-90 * Math.PI / 180)
-        ctx.scale(vs, vs)
+        sw = cw / vh, sh = ch / vw, vs = sw < sh ? sw : sh;
+        iw = vh * vs, ih = vw * vs;
+        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2];
+        bb = [iw, ih];
+        ctx.translate(tl[0], tl[1] + ih);
+        ctx.rotate(-90 * Math.PI / 180);
+        ctx.scale(vs, vs);
       } else {
         // No rotation.
-        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2]
-        bb = [iw, ih]
-        ctx.translate(tl[0], tl[1])
-        ctx.scale(vs, vs)
+        tl = [x_off + cw / 2 - iw / 2, ch / 2 - ih / 2];
+        bb = [iw, ih];
+        ctx.translate(tl[0], tl[1]);
+        ctx.scale(vs, vs);
       }
 
-      ctx.drawImage(img, 0, 0)
+      ctx.drawImage(img, 0, 0);
 
-      var dw = Math.round(vw * vs), dh = Math.round(vh * vs)
-      var idata = ctx.getImageData(tl[0], tl[1], iw, ih)
-      dw = idata.width, dh = idata.height
-      var d1 = idata.data
-      ctx.clearRect(0, 0, iw, ih)
-      for(var i =  0; i < d1.length / 4; i++) data1[i] = d1[i * 4]
-      var k = scope.kernel.map(function(d) { return +d })
-      scope.kernelFunc(data1, dw, dh, k, data2)
-      var idata = ctx.createImageData(dw, dh)
-      for(var i = 0; i < idata.data.length; i+=4) {
-        idata.data[i + 0] = data2[i / 4]
-        idata.data[i + 1] = data2[i / 4]
-        idata.data[i + 2] = data2[i / 4]
-        idata.data[i + 3] = 255
+      var dw = Math.round(vw * vs), dh = Math.round(vh * vs);
+      var idata = ctx.getImageData(tl[0], tl[1], iw, ih);
+      dw = idata.width, dh = idata.height;
+      var d1 = idata.data;
+      ctx.clearRect(0, 0, iw, ih);
+      for (var i = 0; i < d1.length / 4; i++) data1[i] = d1[i * 4];
+      var k = scope.kernel.map(function(d) { return +d; });
+      scope.kernelFunc(data1, dw, dh, k, data2);
+      var idata = ctx.createImageData(dw, dh);
+      for (var i = 0; i < idata.data.length; i += 4) {
+        idata.data[i + 0] = data2[i / 4];
+        idata.data[i + 1] = data2[i / 4];
+        idata.data[i + 2] = data2[i / 4];
+        idata.data[i + 3] = 255;
       }
-      ctx.putImageData(idata, tl[0], tl[1])
+      ctx.putImageData(idata, tl[0], tl[1]);
 
-      ctx.restore()
-
+      ctx.restore();
     }
 
     scope.$watch('kernel', function() {
-      if (mode !== 'image' || !didLoadImage) return
-      drawImage()
-    }, true)
+      if (mode !== 'image' || !didLoadImage) return;
+      drawImage();
+    }, true);
   }
-  return { link: link, restrict: 'E' }
-})
-
+  return { link: link, restrict: 'E' };
+});
 
 myApp.directive('kernelMatrix', function() {
   function link(scope, el, attr) {
