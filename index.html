@@ -16,6 +16,17 @@
 <title>Filtri Convoluzionali explained visually</title>
 <meta content="vicapow" name="twitter:creator"/>
 <link href="style.css" rel="stylesheet" type="text/css"/>
+<style>
+  /* Add positioning style for the placeholder image */
+  #placeholder-image {
+    position: absolute;
+    top: 50px;
+    left: 450px; /* Adjusted from 650px to 500px for a more balanced position */
+    z-index: 1;
+    max-width: 500px;
+    max-height: 500px;
+  }
+</style>
 </head>
 <body ng-app="myApp" ng-controller="MainCtrl"><div style="background: #f2f2f2; padding: 10px; border-bottom: 1px solid #ccc; font-size: 1.2em; color: #444; text-align: center;">
   Traduzione italiana basata sull'originale di <a href="https://setosa.io">setosa.io</a>.
@@ -25,50 +36,14 @@
 <h1 class="title">Filtri Convoluzionali</h1>
 <h3 class="by-line">Spiegati Visivamente</h3>
 </div>
-<div class="share"><a class="twitter-share-button" data-via="setosaio" href="https://twitter.com/share">Condividi su Twitter</a>
-<iframe allowtransparency="true" class="fb-iframe" frameborder="0" scrolling="no" src="https://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fsetosa.io%2Fev%2Fimage-kernels%2F&amp;width=150&amp;height=24&amp;layout=button_count&amp;action=like&amp;show_faces=false&amp;share=true" style="border:none; overflow:hidden; height: 20px; width: 150px"></iframe>
-<script type="text/javascript">
-          !function(d,s,id) {
-            var js
-              , fjs = d.getElementsByTagName(s)[0]
-              , p = /^http:/.test(d.location) ? 'http' : 'https';
-            if(!d.getElementById(id)) {
-              js = d.createElement(s);
-              js.id = id;
-              js.src = p + '://platform.twitter.com/widgets.js';
-              fjs.parentNode.insertBefore(js,fjs);
-            }
-          }(document, 'script', 'twitter-wjs');
-          
-        </script>
-</div>
 </section>
 <section>
-<p>Versione originale di <a href="http://twitter.com/vicapow">Victor Powell</a>
-</p>
-<p><p>Un filtro convoluzionale è una piccola matrice utilizzata per applicare effetti come sfocatura, nitidezza, contorno o rilievo (embossing), come in Photoshop o Gimp. They're also used in machine learning for 'feature extraction', a technique for determining the most important portions of an image. In this context the process is referred to more generally as "convolution" (see: <a href="https://en.wikipedia.org/wiki/Convolutional_neural_network">convolutional neural networks</a>.)</p>
-<p>Per capire come funzionano, iniziamo osservando un'immagine in bianco e nero. The matrix on the left contains numbers, between 0 and 255, which each correspond to the brightness of one pixel in a picture of a face.  The large, granulated picture has been blown up to make it easier to see; the last image is the "real" size.</p>
-</p>
-<p>
-<image-as-matrix></image-as-matrix>
-</p>
-<p>Applichiamo passo passo il seguente kernel 3x3<b> {{selectedKernel}} </b>al volto mostrato sopra.</p>
-<p>
-<div style="width: 100%; text-align: center">
-<select ng-model="selectedKernel" ng-options="key as key for (key, value) in selectableKernels"></select>
-</div>
-<kernel-matrix></kernel-matrix>
-</p>
-<p><p>Sotto, per ogni blocco 3x3 di pixel nell'immagine a sinistra, moltiplichiamo ciascun pixel per l'elemento corrispondente del kernel e sommiamo i risultati. La somma diventa un nuovo pixel nell'immagine a destra. Passa il mouse su un pixel per vedere come viene calcolato.</p>
-<div style="position:relative">
-<kernel-inspect></kernel-inspect>
-<div style="display:block; position: absolute;top:360px; left: 450px">
-<select ng-model="selectedKernel" ng-options="key as key for (key, value) in selectableKernels"></select>
-</div>
-</div><p>Una particolarità di questo processo è come gestire i bordi dell'immagine. For example, the top left corner of the input image only has three neighbors. One way to fix this is to extend the edge values out by one in the original image while keeping our new image the same size. In this demo, we've instead ignored those values by making them black.</p>
 <p>Qui puoi sperimentare con diverse matrici di kernel e vedere come influenzano l'immagine originale, oppure costruire il tuo kernel personalizzato. You can also upload your own image or use live video if your browser supports it.</p>
 <div style="position:relative">
-<div style="display: block; position:absolute; width: 260px;height:260px; top: 85px; left: 65px;">
+  <!-- Add default image with absolute positioning to match the uploaded image position -->
+  <img id="placeholder-image" src="images/placeholder.jpg" alt="Immagine di esempio">
+  
+  <div style="display: block; position:absolute; width: 260px;height:260px; top: 85px; left: 65px;">
 <div ng-repeat="(idx, val) in kernel track by $id(idx)" style="display: block; width: 33.33%; height: 33.33%; float: left;">
 <input max="10" min="-10" ng-change="modifiedKernel()" ng-model="kernel[idx]" step="0.1" style="width:100%;height: 100%;font-size: 20px;text-align:center" type="number"/>
 </div>
@@ -78,7 +53,6 @@
 </div>
 <kernel-playground></kernel-playground>
 </div>
-</p>Qui puoi sperimentare con diverse matrici di kernel e vedere come influenzano l'immagine originale, oppure costruire il tuo kernel personalizzato. You can also upload your own image or use live video if your browser supports it.Una particolarità di questo processo è come gestire i bordi dell'immagine. For example, the top left corner of the input image only has three neighbors. One way to fix this is to extend the edge values out by one in the original image while keeping our new image the same size. In this demo, we've instead ignored those values by making them black.Sotto, per ogni blocco 3x3 di pixel nell'immagine a sinistra, moltiplichiamo ciascun pixel per l'elemento corrispondente del kernel e sommiamo i risultati. La somma diventa un nuovo pixel nell'immagine a destra. Passa il mouse su un pixel per vedere come viene calcolato.
 <p>
 <div ng-show="selectedKernel === 'sharpen'">
 </div>
@@ -94,7 +68,6 @@
 </div>
 <div ng-show="selectedKernel === 'outline'">
 </div>
-</p>An <strong>outline</strong> kernel (also called an "edge" kernel) is used to highlight large differences in pixel values. A pixel next to neighbor pixels with close to the same intensity will appear black in the new image while one next to neighbor pixels that differ strongly will appear white.<strong>sobel</strong> kernels are used to show <em>only</em> the differences in adjacent pixel values in a particular direction.The <strong>custom</strong> kernel is whatever you make it.The <strong>indentity</strong> kernel leaves the image unchanged. How boring!The <strong>emboss</strong> kernel (similar to the <strong>sobel</strong> kernel and sometimes referred to mean the same) givens the illusion of depth by emphasizing the differences of pixels in a given direction. In this case, in a direction along a line from the top left to the bottom right.The <strong>blur</strong> kernel de-emphasizes differences in adjacent pixel values.The <strong>sharpen</strong> kernel emphasizes differences in adjacent pixel values. This makes the image look more vivid.
 </section>
 <script type="&lt;/div&gt;text/javascript">
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -105,7 +78,21 @@
       ga('create', 'UA-11200159-16', 'setosa.io');
       ga('send', 'pageview');
     </script>
-</body>
+<script>
+  // Hide placeholder when user selects their own image
+  document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[type="file"]'); // Adjust selector based on your HTML
+    if (fileInput) {
+      fileInput.addEventListener('change', function() {
+        const placeholder = document.getElementById('placeholder-image');
+        if (placeholder && this.files.length > 0) {
+          placeholder.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>
 <script charset="utf-8" src="scripts/exif.js"></script>
 <script src="script.js"></script>
+</body>
 </html>
